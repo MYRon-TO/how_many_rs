@@ -7,15 +7,13 @@ pub mod visit {
         path::Path,
     };
 
-    pub fn visit(path: &Path, files_types_num: &mut HashMap<String, u8>) {
+    pub fn visit(path: &Path, files_types_num: &mut HashMap<String, u32>) {
         // 遍历目录
         for entry in fs::read_dir(path).unwrap() {
             let path = entry.unwrap().path();
 
             if path.is_dir() {
-                // 在写了，在写了
-                // TODO:访问子目录
-                // todo!();
+                // 递归访问子目录
                 visit(&path, files_types_num);
                 continue;
             } else if path.is_symlink() {
@@ -28,7 +26,7 @@ pub mod visit {
         }
     }
 
-    fn count_types(path: &Path, files_types_num: &mut HashMap<String, u8>) {
+    fn count_types(path: &Path, files_types_num: &mut HashMap<String, u32>) {
         match path.extension() {
             Some(file) => {
                 // 有后缀名的文件
