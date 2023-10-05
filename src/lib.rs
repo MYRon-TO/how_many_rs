@@ -1,10 +1,32 @@
+#![allow(unused)]
 pub mod visit {
 
-    use std::{
-        fs,
-        // io,
-        path::Path,
-    };
+    use std::{fs, path::Path};
+
+    mod threads {
+        use std::thread;
+
+        pub struct Manager {
+            workers: Vec<thread::JoinHandle<()>>,
+            count: u8,
+        }
+        pub enum BuildManagerError {
+            WrongSize(String),
+        }
+
+        impl Manager {
+            pub fn new(size: u8) -> Result<Manager, BuildManagerError> {
+                if size <= 0 {
+                    Err(BuildManagerError::WrongSize(String::from("size was too small!")))
+                } else {
+                    Ok(Manager{
+                        workers: vec![],
+                        count: size,
+                    })
+                }
+            }
+        }
+    }
 
     fn visit(path: &Path, num: &mut u32) {
         // 遍历目录
@@ -27,13 +49,13 @@ pub mod visit {
 
     fn count_types(path: &Path, num: &mut u32) {
         if let Some(file) = path.extension() {
-            if file.to_str().unwrap() == "rs"{
+            if file.to_str().unwrap() == "rs" {
                 *num += 1;
             }
         }
     }
 
-    pub fn run(path: &Path, num: &mut u32){
+    pub fn run(path: &Path, num: &mut u32) {
         visit(path, num)
     }
 }
