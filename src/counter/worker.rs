@@ -5,21 +5,38 @@ use std::{
     sync::mpsc,
 };
 
+/// # Worker
+/// id: worker 的 id
+/// thread: worker 的线程
 pub struct Worker {
     id: u8,
-    thread: thread::JoinHandle<()>,
+    answer: mpsc::Sender<u32>,
+    done: mpsc::Sender<u8>,
 }
 
 impl Worker {
-    pub fn new(id: u8) -> Worker {
-        let thread = thread::spawn(move || {
-            println!("I'm a worker!");
-        });
+    /// # new
+    /// 创建一个 Worker
+    /// id: worker 的 id
+    pub fn new(
+        id: u8,
+        answer:mpsc::Sender<u32>,
+        done: mpsc::Sender<u8>,
+        ) -> Worker {
 
         Worker {
             id,
-            thread,
+            answer,
+            done,
         }
+    }
+
+    fn work(&self) {
+        let answer = self.answer.clone();
+        let thread = thread::spawn(move || {
+            answer.send(1).unwrap();
+        });
+
     }
 }
 
@@ -28,6 +45,7 @@ pub enum BuildManagerError {
     WrongSize(String),
 }
 
+/// 为 BuildManagerError 实现 Debug trait
 impl std::fmt::Debug for BuildManagerError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
